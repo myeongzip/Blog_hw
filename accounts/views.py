@@ -1,12 +1,15 @@
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import status, permissions, generics
 from rest_framework.response import Response
 from accounts.models import User
-
-from accounts.serializers import CustomTokenObtainPairSerializer, Userserializer
+from rest_framework.decorators import action
+from accounts.serializers import CustomTokenObtainPairSerializer, RefreshTokenSerializer, Userserializer
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
 )
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from django.contrib.auth import logout
 # Create your views here.
 
 class UserView(APIView):
@@ -22,3 +25,26 @@ class UserView(APIView):
 class CustomTokenObtainPairView(TokenObtainPairView):   # signin/login
     serializer_class = CustomTokenObtainPairSerializer
 
+class mockView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self,request):
+        return Response("로그인 권한 설정된 get 요청입니다.")
+
+# class LogoutView(APIView):        # 토큰을 없애지는 못하는 logout view
+#     def post(self, request):
+        
+#         logout(request)
+#         return Response({'message': "Logout successful"})   
+
+class LogoutView(generics.GenericAPIView):  # body에 refresh token을 post로 보내면 refresh token을 blacklist로 보냄.
+    serializer_class = RefreshTokenSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request, *args):
+        refresh = self.get_serializer(data=request.data)
+        refresh.is_valid(raise_exception=True)
+        refresh.save()
+
+        user = request.user
+        logout(request)
+
+        return Response(f"user :{user.username} 로그아웃 성공!!, 토큰을 반납", status=status.HTTP_204_NO_CONTENT)
