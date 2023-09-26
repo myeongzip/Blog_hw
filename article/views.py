@@ -1,10 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework import status, permissions, generics
 from rest_framework.response import Response
-from article.serializers import ArticleCreateSerializer, ArticleListSerializer, ArticleSerializer, ArticleUpdateSerializer
-from article.models import Article
+from article.serializers import ArticleCreateSerializer, ArticleListSerializer, ArticleSerializer, ArticleUpdateSerializer, CommentSerializer
+from article.models import Article, Comment
 
 # Create your views here.
+
+class CommentView(APIView):
+    def get(self, article_id):
+        article = Article.objects.get(id=article_id)
+        comments = article.comments.all()
+        print(comments)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK) 
 
 class ArticleView(APIView): 
     def get(self, request): # 최초 read 확인
