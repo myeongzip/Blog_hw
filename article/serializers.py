@@ -22,4 +22,10 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
         class Meta:
             model = Article
             fields = ("title", "image", "content")
+            
+            
+class ArticleUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = ("title", "image", "content")            
 
