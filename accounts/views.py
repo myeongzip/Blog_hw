@@ -45,6 +45,6 @@ class LogoutView(generics.GenericAPIView):  # body에 refresh token을 post로 �
         refresh.save()
 
         user = request.user
-        logout(request)
+        logout(request) # from django.contrib.auth에서 import 했는데 왜 되지..?
 
         return Response(f"user :{user.username} 로그아웃 성공!!, 토큰을 반납", status=status.HTTP_204_NO_CONTENT)
